@@ -1,0 +1,81 @@
+{
+    "FileSign": "596f6f4172745265706f7274",
+    "FileVersion": "1.0",
+    "SchemaType": "TextureSchema",
+    "ScannerGUID": "aff1bb4d-9558-47ba-8905-77a1ad03fd29",
+    "ReportTitle": "扫描所有纹理资产",
+    "ReportDesc": "规则介绍：检测图片的格式，尺寸",
+    "HeaderTitles": [
+        {
+            "HeaderTitle": "资源路径",
+            "Width": 600,
+            "MinWidth": 500,
+            "MaxWidth": 1000,
+            "Stretchable": true,
+            "Searchable": true,
+            "Sortable": true,
+            "HeaderType": 0
+        },
+        {
+            "HeaderTitle": "图片宽度",
+            "Width": 100,
+            "MinWidth": 100,
+            "MaxWidth": 100,
+            "Stretchable": false,
+            "Searchable": false,
+            "Sortable": true,
+            "HeaderType": 2
+        },
+        {
+            "HeaderTitle": "图片高度",
+            "Width": 100,
+            "MinWidth": 100,
+            "MaxWidth": 100,
+            "Stretchable": false,
+            "Searchable": false,
+            "Sortable": true,
+            "HeaderType": 2
+        },
+        {
+            "HeaderTitle": "内存大小",
+            "Width": 100,
+            "MinWidth": 100,
+            "MaxWidth": 100,
+            "Stretchable": false,
+            "Searchable": false,
+            "Sortable": true,
+            "HeaderType": 2
+        },
+        {
+            "HeaderTitle": "苹果格式",
+            "Width": 100,
+            "MinWidth": 100,
+            "MaxWidth": 100,
+            "Stretchable": false,
+            "Searchable": false,
+            "Sortable": false,
+            "HeaderType": 1
+        },
+        {
+            "HeaderTitle": "安卓格式",
+            "Width": 100,
+            "MinWidth": 100,
+            "MaxWidth": 100,
+            "Stretchable": false,
+            "Searchable": false,
+            "Sortable": false,
+            "HeaderType": 1
+        },
+        {
+            "HeaderTitle": "错误信息",
+            "Width": 500,
+            "MinWidth": 500,
+            "MaxWidth": 500,
+            "Stretchable": true,
+            "Searchable": false,
+            "Sortable": false,
+            "HeaderType": 1
+        }
+    ],
+    "ReportElements": []
+}
