@@ -41,7 +41,8 @@ public class Launcher : MonoBehaviour
         container.Register(eventHandleService);
 
         //资源加载辅助类
-        IAssetLoadUtil loadUtil = new LoadAssetMgr();
+        //IAssetLoadUtil loadUtil = new LoadAssetMgr();
+        IAssetLoadUtil loadUtil = this.GetComponent<LoadAssetMgr>();
         container.Register(loadUtil);
         //UI
         IViewService viewService = new ViewManager();

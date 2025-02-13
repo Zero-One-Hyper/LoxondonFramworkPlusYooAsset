@@ -17,10 +17,20 @@ namespace LP.Framework
             ApplicationContext context = Context.GetApplicationContext();
             _assetLoadUtil = context.GetService<IAssetLoadUtil>();
 
-            var effectsPrefab = _assetLoadUtil.ResourcesLoad<GameObject>("Prefabs/VFXes.prefab");
-            var vfxRoot = GameObject.Instantiate(effectsPrefab);
-            ISceneGameObjectService sceneGameObjectService = context.GetService<ISceneGameObjectService>();
-            sceneGameObjectService.AddGameObject("VFXes", vfxRoot);
+            _assetLoadUtil.LoadAssetAsync<GameObject>("VFXes", handle =>
+            {
+                if (handle != null)
+                {
+                    GameObject vfxRoot = handle.InstantiateSync();
+
+                    ISceneGameObjectService sceneGameObjectService = context.GetService<ISceneGameObjectService>();
+                    sceneGameObjectService.AddGameObject("VFXes", vfxRoot);
+                }
+                else
+                {
+                    XLog.E($"未找到预制体VFXes");
+                }
+            });
         }
     }
 }

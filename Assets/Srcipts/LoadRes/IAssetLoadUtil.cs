@@ -4,6 +4,7 @@ using System.Collections.Generic;
 //using Loxodon.Framework.Bundles;
 using LP.Framework;
 using UnityEngine;
+using YooAsset;
 using Object = UnityEngine.Object;
 
 /// <summary>
@@ -17,5 +18,14 @@ public interface IAssetLoadUtil : ILoad
     /// <param name="name"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    T ResourcesLoad<T>(string name) where T : Object;
+    //T ResourcesLoad<T>(string name) where T : Object;
+
+    /// <summary>
+    /// 异步加载资源
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="callBack"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public void LoadAssetAsync<T>(string name, Action<AssetHandle> callBack) where T : Object;
 }

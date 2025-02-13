@@ -31,8 +31,17 @@ public class MeshLightingDataService : IMeshLightingDataService
     private void LoadLightingData()
     {
         var resService = _context.GetService<IAssetLoadUtil>();
-        TextAsset lightingData = resService.ResourcesLoad<TextAsset>("Configs/" + "LightingData.json");
-        _lightData = JsonUtility.FromJson<AllLightData>(lightingData.text);
+        resService.LoadAssetAsync<TextAsset>("LightingData", handle =>
+        {
+            if (handle != null)
+            {
+                TextAsset lightingData = handle.AssetObject as TextAsset;
+                _lightData = JsonUtility.FromJson<AllLightData>(lightingData.text);
+                Debug.Log(lightingData.text);
+            }
+        });
+        //TextAsset lightingData = resService.ResourcesLoad<TextAsset>("Configs/" + "LightingData.json");
+        //_lightData = JsonUtility.FromJson<AllLightData>(lightingData.text);
     }
 
     public List<MeshLightingDataLoader.CustomLightMapData> GetLightData()

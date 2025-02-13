@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using Loxodon.Framework.Contexts;
@@ -7,10 +8,7 @@ using UnityEngine;
 public interface ISceneGameObjectService : IService
 {
     void AddGameObject(string name, GameObject go);
-    GameObject TryGetSceneGameObject(string name);
-    void LoadOfficeCence();
-    void LoadProvincialMap();
-    void UnLoadProvincialMap();
+    void TryGetSceneGameObject(string name, Action<GameObject> callback);
 }
 
 public class SceneGameObjectService : ISceneGameObjectService
@@ -32,115 +30,48 @@ public class SceneGameObjectService : ISceneGameObjectService
         }
     }
 
-    public GameObject TryGetSceneGameObject(string name)
+    public void TryGetSceneGameObject(string name, Action<GameObject> callBack)
     {
         if (_sceneGameObjects.TryGetValue(name, out GameObject gameObject))
         {
-            return gameObject;
+            callBack?.Invoke(gameObject);
+            return;
         }
 
-        var resService = _context.GetService<IAssetLoadUtil>();
         //加载物体
-        var prefab = resService.ResourcesLoad<GameObject>($"Prefabs/{name}.Prefab");
-        if (prefab == null)
+        var resService = _context.GetService<IAssetLoadUtil>();
+        resService.LoadAssetAsync<GameObject>(name, handle =>
         {
-            XLog.E($"未找到预制体{name}");
-            return null;
-        }
-        var prefabGameObject = GameObject.Instantiate(prefab);
-        prefabGameObject.name = name;
-        prefabGameObject.transform.position = Vector3.zero;
-        this.AddGameObject(name, prefabGameObject);
-
-        return prefabGameObject;
+            if (handle != null)
+            {
+                GameObject prefabGameObject = handle.InstantiateSync();
+                prefabGameObject.name = name;
+                prefabGameObject.transform.position = Vector3.zero;
+                this.AddGameObject(name, prefabGameObject);
+                XLog.I($"Prefab name is {prefabGameObject.name}");
+                callBack?.Invoke(prefabGameObject);
+            }
+            else
+            {
+                XLog.E($"未找到预制体{name}");
+            }
+        });
     }
 
     public void LoadOfficeCence()
     {
-        var resService = _context.GetService<IAssetLoadUtil>();
-        var scenePrefab = resService.ResourcesLoad<GameObject>("Prefabs/DigitalScene.prefab");
-        var go = GameObject.Instantiate(scenePrefab);
-        go.name = "OfficeScene";
-        this.AddGameObject("OfficeScene", go);
+        GameObject sceneGameObject = null;
+        this.TryGetSceneGameObject("DigitalScene", gameObject => sceneGameObject = gameObject);
+
 
         //加载光照信息
         MeshLightingDataLoader lightingDataLoader = new MeshLightingDataLoader();
-        lightingDataLoader.Init(go);
+        lightingDataLoader.Init(sceneGameObject);
 
         //加载门 模型
-        var doorPrefab = resService.ResourcesLoad<GameObject>("Prefabs/Doors.Prefab");
-        var doorGo = GameObject.Instantiate(doorPrefab);
-        doorGo.name = "Doors";
-        this.AddGameObject("Doors", doorGo);
-
-        //加载collider
-        var colliderPrefab = resService.ResourcesLoad<GameObject>("Prefabs/DoorColliders.Prefab");
-        var doorColliderGameObject = GameObject.Instantiate(colliderPrefab);
-        doorColliderGameObject.name = "DoorColliders";
-        this.AddGameObject("DoorColliders", doorColliderGameObject);
-
-        //加载寻路
-        var meshSurfacePrefab = resService.ResourcesLoad<GameObject>("Prefabs/MeshSurface.prefab");
-        GameObject meshSurfaceGameObject = GameObject.Instantiate(meshSurfacePrefab);
-        meshSurfaceGameObject.name = "MeshSurface";
-        this.AddGameObject("MeshSurface", meshSurfaceGameObject);
-
-        //加载player
-        var playerPrefab = resService.ResourcesLoad<GameObject>("Prefabs/PlayerRoot.prefab");
-        var playerGameObject = GameObject.Instantiate(playerPrefab);
-        playerGameObject.name = "PlayerRoot";
-        this.AddGameObject("PlayerRoot", playerGameObject);
-    }
-    public void UnLoadOfficeScene()
-    {
-        var resService = _context.GetService<IAssetLoadUtil>();
-        //办公室场景 模型
-        if (_sceneGameObjects.TryGetValue("OfficeScene", out GameObject officeScene))
-        {
-
-        }
-        //门 模型
-        if (_sceneGameObjects.TryGetValue("Doors", out GameObject doorGo))
-        {
-
-        }
-        //门 collider
-        if (_sceneGameObjects.TryGetValue("DoorColliders", out GameObject doorColliderGameObject))
-        {
-
-        }
-        //寻路（可以留着？）
-        if (_sceneGameObjects.TryGetValue("MeshSurface", out GameObject meshSurfaceGameObject))
-        {
-
-        }
-        //player可以留着？
-        if (_sceneGameObjects.TryGetValue("PlayerRoot", out GameObject playerGameObject))
-        {
-
-        }
-    }
-    public void LoadProvincialMap()
-    {
-        if (!_sceneGameObjects.ContainsKey("ProvinceScene"))
-        {
-            var resService = _context.GetService<IAssetLoadUtil>();
-            var provincePrefab = resService.ResourcesLoad<GameObject>("Prefabs/ShanXiProvince.prefab");
-            var go = GameObject.Instantiate(provincePrefab);
-            go.name = "ProvinceScene";
-            this.AddGameObject("ProvinceScene", go);
-        }
-        else
-        {
-            var provinceScene = this.TryGetSceneGameObject("ProvinceScene");
-            provinceScene.SetActive(true);
-        }
-    }
-    public void UnLoadProvincialMap()
-    {
-        if (_sceneGameObjects.TryGetValue("ProvinceScene", out GameObject provinceScene))
-        {
-            provinceScene.SetActive(false);
-        }
+        //var doorPrefab = resService.ResourcesLoad<GameObject>("Prefabs/Doors.Prefab");
+        //var doorGo = GameObject.Instantiate(doorPrefab);
+        //doorGo.name = "Doors";
+        //this.AddGameObject("Doors", doorGo);
     }
 }

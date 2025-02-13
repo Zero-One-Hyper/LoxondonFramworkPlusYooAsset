@@ -16,8 +16,9 @@ namespace LP.Framework
         {
             ApplicationContext context = Context.GetApplicationContext();
             //资源加载辅助类
-            //var bundleService = context.GetService<IAssetBundleService>();
+            var resLoader = context.GetService<IAssetLoadUtil>();
+            MeshLightingDataService test = new MeshLightingDataService();
+            test.Init();
         }
     }
 }
-

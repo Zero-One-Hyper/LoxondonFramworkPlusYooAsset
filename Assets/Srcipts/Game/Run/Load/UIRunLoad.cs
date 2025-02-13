@@ -16,7 +16,7 @@ namespace LP.Framework
         {
             ApplicationContext context = Context.GetApplicationContext();
             var viewService = context.GetService<IViewService>();
-            var main = viewService.OpenView<MainPanel>(1111, "2123") as MainPanel;
+            //var main = viewService.OpenView<MainPanel>(1111, "2123") as MainPanel;
 
             //var maskPanel = viewService.OpenView<MaskPanel>() as MaskPanel;
         }
