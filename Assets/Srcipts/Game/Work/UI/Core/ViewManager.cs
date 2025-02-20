@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Loxodon.Framework.Contexts;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,6 +12,7 @@ namespace LP.Framework
 {
     public class ViewManager : IViewService
     {
+        private IAssetLoadUtil _assetLoadUtil;
         public Dictionary<string, IViewBase> ViewDict { get; set; }
         public Dictionary<ViewLayer, Transform> LayerDict { get; set; }
 
@@ -45,9 +47,10 @@ namespace LP.Framework
             }
         }
 
-        public IViewBase OpenView<T>(params object[] args) where T : IViewBase
+        public async Task<IViewBase> OpenView<T>(params object[] args) where T : IViewBase
         {
-            return OpenView<T>(_uiResPath, args);
+            //return OpenView<T>(_uiResPath, args, callBack);
+            return await OpenView<T>(_uiResPath, args);
         }
 
         /// <summary>
@@ -57,7 +60,8 @@ namespace LP.Framework
         /// <param name="args"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public IViewBase OpenView<T>(string path, params object[] args) where T : IViewBase
+        public async Task<IViewBase> OpenView<T>(string path, params object[] args)
+            where T : IViewBase
         {
             var name = typeof(T).ToString();
             if (ViewDict.ContainsKey(name))
@@ -76,7 +80,16 @@ namespace LP.Framework
                 }
             }
 
-            var uiGameObject = GameObject.Instantiate(Resources.Load<GameObject>(Path.Combine(path, name)));
+
+            if (_assetLoadUtil == null)
+            {
+                _assetLoadUtil = Context.GetApplicationContext().GetService<IAssetLoadUtil>();
+            }
+
+            //var uiGameObject = GameObject.Instantiate(Resources.Load<GameObject>(Path.Combine(path, name)));
+            GameObject uiPrefab = await _assetLoadUtil.ResourceLoadAsync<GameObject>(name);
+            GameObject uiGameObject = GameObject.Instantiate(uiPrefab);
+
             IViewBase view = uiGameObject.GetComponent<T>();
             view.InitUI(args);
             ViewDict.Add(name, view);
@@ -88,6 +101,32 @@ namespace LP.Framework
             trans.SetParent(transP, false);
             view.OnShow();
             return view;
+            /*
+            _assetLoadUtil.LoadAsset<GameObject>(name, handle =>
+            {
+                if (handle != null)
+                {
+                    if (ViewDict.TryGetValue(name, out IViewBase view))
+                    {
+                        return ;
+                    }
+
+                    GameObject uiGameObject = handle.InstantiateSync();
+
+                    view = uiGameObject.GetComponent<T>();
+                    view.InitUI(args);
+                    ViewDict.Add(name, view);
+                    view.PanelObj = uiGameObject;
+                    view.PanelObj.name = name;
+                    var trans = view.PanelObj.transform;
+                    var layer = (view as ViewBase).Layer;
+                    var transP = LayerDict[layer];
+                    trans.SetParent(transP, false);
+                    view.OnShow();
+                    callBack?.Invoke(view);
+                }
+            });
+            */
         }
 
         /// <summary>
@@ -168,13 +207,28 @@ namespace LP.Framework
             return v;
         }
 
+        //切换至省图模式
+        public void EnterPanoramaModeSetUI()
+        {
+            IGuildTourService guildTourService = Context.GetApplicationContext().GetService<IGuildTourService>();
+            guildTourService.OpenGuidlMap("false");
+            CloseView<UIEmployeeDataChart>();
+            CloseView<UIDoorPermission>();
+            CloseView<UIMinMap>();
+            CloseView<UITipLeftDown>();
+            CloseView<UITip>();
+        }
+
+        public void EnterRoamingModeSetUI()
+        {
+            IGuildTourService guildTourService = Context.GetApplicationContext().GetService<IGuildTourService>();
+            guildTourService.OpenMinMap();
+        }
+
         public bool CheckMouseOnUI(Vector2 mousePosition)
         {
             _graphicRaycastResult.Clear();
-            PointerEventData p = new PointerEventData(EventSystem.current)
-            {
-                position = mousePosition,
-            };
+            PointerEventData p = new PointerEventData(EventSystem.current) { position = mousePosition, };
             foreach (var cas in _graphicRaycasters)
             {
                 cas.Raycast(p, _graphicRaycastResult);

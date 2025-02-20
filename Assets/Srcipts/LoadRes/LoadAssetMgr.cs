@@ -35,13 +35,6 @@ public class LoadAssetMgr : MonoBehaviour, IAssetLoadUtil
         //yield return handle;
         handle.Completed += callBack;
     }
-
-    //public T ResourcesLoad<T>(string name) where T : Object
-    //{
-    //    var result = Resources.Load<T>(this.GetFilePathWithoutExtension(name));
-    //    return result;
-    //}
-
     private string GetFilePathWithoutExtension(string path)
     {
         int index = path.IndexOf('.');
@@ -66,7 +59,7 @@ public class LoadAssetMgr : MonoBehaviour, IAssetLoadUtil
     private void HandleCompleted(AssetHandle handle)
     {
         GameObject go = handle.InstantiateSync();
-        Debug.Log($"Prefab name is {go.name}");
+        //Debug.Log($"Prefab name is {go.name}");
         this.gameObject.AddComponent<Launcher>();
     }
 
@@ -128,25 +121,25 @@ public class LoadAssetMgr : MonoBehaviour, IAssetLoadUtil
 
         if (initializationOperation.Status == EOperationStatus.Succeed)
         {
-            Debug.Log("资源包初始化成功！");
+            XLog.I("资源包初始化成功！");
         }
         else
         {
-            Debug.LogError($"资源包初始化失败：{initializationOperation.Error}");
+            XLog.E($"资源包初始化失败：{initializationOperation.Error}");
         }
 
         //2.获取最新资源版本
         var operation = package.RequestPackageVersionAsync();
         yield return operation;
-        Debug.Log($"最新版本为：{operation.PackageVersion}");
+        XLog.I($"最新版本为：{operation.PackageVersion}");
         if (operation.Status != EOperationStatus.Succeed)
         {
-            Debug.LogError(operation.Error);
+            XLog.E(operation.Error);
             yield break;
         }
 
         string packageVersion = operation.PackageVersion;
-        Debug.Log($"Updated package version: {packageVersion}");
+        XLog.I($"Updated package version: {packageVersion}");
 
         //3.更新补丁清单
         //更新成功后自动保存版本号，作为下次初始化的版本
@@ -158,7 +151,7 @@ public class LoadAssetMgr : MonoBehaviour, IAssetLoadUtil
         if (updateOperation.Status != EOperationStatus.Succeed)
         {
             //更新失败
-            Debug.LogError(updateOperation.Error);
+            XLog.E(updateOperation.Error);
             yield break;
         }
 
@@ -243,7 +236,7 @@ public class LoadAssetMgr : MonoBehaviour, IAssetLoadUtil
         var package = YooAssets.GetPackage("DefaultPackage");
         if (package == null)
         {
-            Debug.LogError("空");
+            XLog.E("空");
         }
 
         var downloader = package.CreateResourceDownloader(downloadMaxNum, faildTryAgain);
@@ -251,7 +244,7 @@ public class LoadAssetMgr : MonoBehaviour, IAssetLoadUtil
         //没有需要下载的资源
         if (downloader.TotalDownloadCount == 0)
         {
-            Debug.Log("没有需要下载的资源");
+            XLog.I("没有需要下载的资源");
             yield break;
         }
 
@@ -273,37 +266,37 @@ public class LoadAssetMgr : MonoBehaviour, IAssetLoadUtil
         if (downloader.Status == EOperationStatus.Succeed)
         {
             //下载成功
-            Debug.Log("更新完成");
+            XLog.I("更新完成");
         }
         else
         {
             //下载失败
-            Debug.Log("更新失败");
+            XLog.E("更新失败");
         }
     }
 
     private void OnStartDownloadFileFunction(DownloadFileData data)
     {
         //开始下载
-        Debug.Log($"开始下载：文件名：{data.FileName}，文件大小：{data.FileSize}");
+        XLog.I($"开始下载：文件名：{data.FileName}，文件大小：{data.FileSize}");
     }
 
     private void OnDownloadFinishFunction(DownloaderFinishData data)
     {
         //下载结束（无论成功或失败）
-        Debug.Log("下载" + (data.Succeed ? "成功" : "失败"));
+        XLog.I("下载" + (data.Succeed ? "成功" : "失败"));
     }
 
     private void OnDownloadUpdateFunction(DownloadUpdateData data)
     {
         //下载进度发生变化
-        Debug.Log($"文件总数：{data.TotalDownloadCount}，已下载文件数：{data.CurrentDownloadCount}，" +
-                  $"下载总大小：{data.TotalDownloadBytes}，已下载大小{data.CurrentDownloadBytes}");
+        XLog.I($"文件总数：{data.TotalDownloadCount}，已下载文件数：{data.CurrentDownloadCount}，" +
+               $"下载总大小：{data.TotalDownloadBytes}，已下载大小{data.CurrentDownloadBytes}");
     }
 
     private void OnDownloadErrorFunction(DownloadErrorData data)
     {
         //下载发生错误
-        Debug.Log($"下载出错：包名:{data.PackageName} 文件名：{data.FileName}，错误信息：{data.ErrorInfo}");
+        XLog.I($"下载出错：包名:{data.PackageName} 文件名：{data.FileName}，错误信息：{data.ErrorInfo}");
     }
 }

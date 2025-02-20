@@ -3,14 +3,12 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine.Rendering;
 
-/// <summary>
-/// 收集场景中的Mesh的光照贴图数据
-/// </summary>
 public class LightingMapTool : EditorWindow
 {
-    //[MenuItem("Tools/光照贴图/收集添加光照贴图数据")]
+    [MenuItem("Tools/光照贴图/收集添加光照贴图数据")]
     private static void Init()
     {
         GetWindow<LightingMapTool>("收集、添加光照贴图数据");
@@ -102,15 +100,26 @@ public class LightingMapTool : EditorWindow
             return;
         }
 
-        string js = JsonUtility.ToJson(_allLightData, true);
+        string js = JsonConvert.SerializeObject(_allLightData);
         string jsonPath = Application.streamingAssetsPath + "/" + _path;
         if (File.Exists(jsonPath))
         {
             File.Delete(jsonPath);
         }
 
+        JsonSerializer serializer = new JsonSerializer();
+        TextReader tr = new StringReader(js);
+        JsonTextReader jtr = new JsonTextReader(tr);
+        object obj = serializer.Deserialize(jtr);
 
-        File.WriteAllText(jsonPath, js);
+        StringWriter textWriter = new StringWriter();
+        JsonTextWriter jsonWriter = new JsonTextWriter(textWriter)
+        {
+            Formatting = Formatting.Indented, Indentation = 4, IndentChar = ' '
+        };
+        serializer.Serialize(jsonWriter, obj);
+
+        File.WriteAllText(jsonPath, textWriter.ToString());
         Debug.Log("Done!!!");
         AssetDatabase.Refresh();
     }

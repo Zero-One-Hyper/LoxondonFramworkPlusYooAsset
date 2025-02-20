@@ -28,20 +28,13 @@ public class MeshLightingDataService : IMeshLightingDataService
     }
 
     //加载存储办公室的光照数据
-    private void LoadLightingData()
+    private async void LoadLightingData()
     {
         var resService = _context.GetService<IAssetLoadUtil>();
-        resService.LoadAssetAsync<TextAsset>("LightingData", handle =>
-        {
-            if (handle != null)
-            {
-                TextAsset lightingData = handle.AssetObject as TextAsset;
-                _lightData = JsonUtility.FromJson<AllLightData>(lightingData.text);
-                Debug.Log(lightingData.text);
-            }
-        });
         //TextAsset lightingData = resService.ResourcesLoad<TextAsset>("Configs/" + "LightingData.json");
-        //_lightData = JsonUtility.FromJson<AllLightData>(lightingData.text);
+
+        TextAsset lightingData = await resService.ResourceLoadAsync<TextAsset>("LightingData");
+        _lightData = JsonUtility.FromJson<AllLightData>(lightingData.text);
     }
 
     public List<MeshLightingDataLoader.CustomLightMapData> GetLightData()

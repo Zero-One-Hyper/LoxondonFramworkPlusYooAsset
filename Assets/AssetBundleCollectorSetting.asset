@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 185f6993d5150494d98da50e26cb1c25, type: 3}
   m_Name: AssetBundleCollectorSetting
   m_EditorClassIdentifier: 
-  ShowPackageView: 1
+  ShowPackageView: 0
   ShowEditorAlias: 1
   UniqueBundleName: 1
   Packages:
@@ -39,6 +39,14 @@ MonoBehaviour:
         UserData: 
       - CollectPath: Assets/HotUpdate/Materials
         CollectorGUID: 6bc69ae0bc20deb4ca3a88d93223af18
+        CollectorType: 2
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 
+      - CollectPath: Assets/HotUpdate/Art
+        CollectorGUID: b35d9996da3ecbd40be3be0ee9a55803
         CollectorType: 2
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory

@@ -143,6 +143,26 @@ public class InputController : IInputService, InputSystem_Actions.IPlayerActions
         }
 
         _moveDir = context.ReadValue<Vector2>().normalized;
+        if (AutoRoaming.IsAutoRoaming && _moveDir.magnitude > 0.1f)
+        {
+            // 显示操作提示
+            StringBuilder sb = new StringBuilder("当前为固定路线漫游，不可调整漫游方向，若想要自由控制方向，可切换为自由漫游模式");
+            //_viewService.OpenView<UITip>(sb);
+
+            var _viewService = ApplicationContext.GetApplicationContext().GetService<IViewService>();
+            var uITip = _viewService.GetView<UITip>();
+            if (uITip == null)
+            {
+                _viewService.OpenView<UITip>(sb);
+            }
+            else
+            {
+                UITip tip = uITip as UITip;
+                tip.RefreshData(sb);
+            }
+
+            return;
+        }
 
         _roamingActions[(int)InputActionType.Move]?.Invoke(_moveDir);
     }
@@ -161,6 +181,10 @@ public class InputController : IInputService, InputSystem_Actions.IPlayerActions
         }
 
         _mouseRotate = context.ReadValue<Vector2>();
+        if (AutoRoaming.IsAutoRoaming && _mouseRotate.magnitude > 0.1f)
+        {
+            return;
+        }
 
         _roamingActions[(int)InputActionType.Rotate]?.Invoke(_mouseRotate);
     }

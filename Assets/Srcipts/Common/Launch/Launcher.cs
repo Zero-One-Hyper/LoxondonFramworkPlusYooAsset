@@ -41,9 +41,9 @@ public class Launcher : MonoBehaviour
         container.Register(eventHandleService);
 
         //资源加载辅助类
-        //IAssetLoadUtil loadUtil = new LoadAssetMgr();
-        IAssetLoadUtil loadUtil = this.GetComponent<LoadAssetMgr>();
+        IAssetLoadUtil loadUtil = new LoadAssetMgr();
         container.Register(loadUtil);
+
         //UI
         IViewService viewService = new ViewManager();
         viewService.Init();
@@ -71,10 +71,6 @@ public class Launcher : MonoBehaviour
 #if UNITY_EDITOR
         this.gameObject.AddComponent<Test>();
 #endif
-        //向web发送unity加载完成消息
-        var webService = Context.GetApplicationContext().GetService<IWebService>();
-        webService.UnityCallWeb(Constant.UNITY_CALL_LOAD_COMPLETE, "");
-        XLog.I("unity加载完成");
     }
 
     private void OnDestroy()
